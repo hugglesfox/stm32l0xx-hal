@@ -97,7 +97,6 @@ impl Adc<Ready> {
     pub fn new(adc: ADC, rcc: &mut Rcc) -> Self {
         // Enable ADC clocks
         ADC::enable(rcc);
-        adc.cr.modify(|_, w| w.advregen().set_bit());
 
         Self {
             rb: adc,
@@ -253,6 +252,8 @@ impl<State> Adc<State> {
         self.rb.cr.modify(|_, w| w.addis().set_bit());
         self.rb.isr.modify(|_, w| w.adrdy().set_bit());
         while self.rb.cr.read().aden().bit_is_set() {}
+
+        self.rb.cr.modify(|_, w| w.advregen().clear_bit());
     }
 
     fn configure(&mut self, channels: impl Into<Channels>, cont: bool, trigger: Option<Trigger>) {
